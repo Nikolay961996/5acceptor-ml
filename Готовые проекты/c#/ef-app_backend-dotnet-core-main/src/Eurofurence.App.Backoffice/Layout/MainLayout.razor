@@ -1,0 +1,44 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@EFMudTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudImage Src="img/ef-logo.svg" Alt="Eurofurence Logo" Height="50" />
+        <MudText Typo="Typo.h5" Class="ml-3">Backoffice</MudText>
+        <MudSpacer />
+        <LoginDisplay />
+        <MudIconButton Href="https://github.com/eurofurence/ef-app_backend-dotnet-core/" Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer Fixed="true" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+@code {
+    bool _drawerOpen = true;
+
+    MudTheme EFMudTheme = new()
+        {
+            PaletteLight = new PaletteLight
+            {
+                Primary = "#69a3a2",
+                Secondary = "#a2c5c4",
+                Tertiary = "#dedede",
+                AppbarBackground = "#005953",
+            }
+        };
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

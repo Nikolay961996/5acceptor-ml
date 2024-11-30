@@ -1,0 +1,140 @@
+﻿@using Eurofurence.App.Domain.Model.Maps
+@using Eurofurence.App.Server.Web.Controllers
+@model Eurofurence.App.Domain.Model.Dealers.DealerRecord
+@{
+    Layout = "~/Views/Shared/_WebPreviewLayout.cshtml";
+
+    var contentBaseUrl = ViewData[WebPreviewController.VIEWDATA_CONTENT_BASE_URL] as string;
+    var apiBaseUrl = ViewData[WebPreviewController.VIEWDATA_API_BASE_URL] as string;
+
+    var displayName  = Model.DisplayNameOrAttendeeNickname;
+    var categories = string.Join(", ", Model.Categories);
+
+    var mapEntries = ViewData["MapEntries"] as List<MapEntryRecord>;
+
+    var days = new string[] {
+            Model.AttendsOnThursday ? "Thursday" : string.Empty,
+            Model.AttendsOnFriday ? "Friday" : string.Empty,
+            Model.AttendsOnSaturday ? "Saturday" : string.Empty,
+    }
+    .Where(day => !string.IsNullOrWhiteSpace(day))
+    .ToArray();
+
+    int mapId = 0;
+}
+
+@section head {
+    <link rel="stylesheet" href="@contentBaseUrl/css/leaflet.css" />
+    <script src="@contentBaseUrl/scripts/leaflet.js" ></script>
+}
+
+<header>
+    @if (Model.ArtistImage != null)
+    {
+        <img src="@Model.ArtistImage.Url" title="@Model.DisplayNameOrAttendeeNickname" 
+             style="max-width: 256px;"
+             />
+    }
+    <h1>
+        @displayName
+        <span>@categories</span>
+        <!-- TODO: Add Keywords? -->
+    </h1>
+    <p>
+        @Model.ShortDescription
+    </p>
+</header>
+
+<section class="summary">
+    @if (!string.IsNullOrEmpty(Model.TwitterHandle))
+    {
+        <a href="https://twitter.com/@Model.TwitterHandle" title="Twitter: @@Model.TwitterHandle" class="button button-primary"><i class="fa-brands fa-twitter"></i> @Model.TwitterHandle</a>
+    }
+    @if (!string.IsNullOrEmpty(Model.TelegramHandle))
+    {
+        <a href="https://t.me/@Model.TelegramHandle" title="Telegram: @@@Model.TelegramHandle" class="button button-primary"><i class="fa-brands fa-telegram"></i> @Model.TelegramHandle</a>
+    }
+    @if (!string.IsNullOrEmpty(Model.DiscordHandle))
+    {
+        <a href="https://discord.com/users/@Model.DiscordHandle" title="Discord: @@@Model.DiscordHandle" class="button button-primary"> @Model.DiscordHandle</a>
+    }
+    @if (!string.IsNullOrEmpty(Model.BlueskyHandle))
+    {
+        <a href="https://bsky.app/profile/@Model.BlueskyHandle" title="Bluesky: @@@Model.BlueskyHandle" class="button button-primary"> @Model.BlueskyHandle</a>
+    }
+    @if (!string.IsNullOrEmpty(Model.MastodonHandle))
+    {
+        <a href="@Model.MastodonHandle" title="Mastodon: @@@Model.MastodonHandle" class="button button-primary"> @Model.MastodonHandle</a>
+    }
+    @if (days.Length > 0)
+    {
+        <div class="infobox"><label><i class="fa fa-calendar"></i> Available:</label> @string.Join(", ", days)</div>
+    }
+    @if (Model.IsAfterDark)
+    {
+        <div class="infobox"><label><i class="fa fa-moon"></i> After Dark</label></div>
+    }
+</section>
+
+<hr />
+
+<section class="row">
+    <div class="three column">
+        <h4>About the Artist</h4>
+        <p>@Model.AboutTheArtistText</p>
+    </div>
+</section>
+
+
+<section class="row">
+    @if (!string.IsNullOrEmpty(Model.AboutTheArtText))
+    {
+        <div class="@(Model.ArtPreviewImage == null ? "three" : "one-half") column">
+            <h4>About the Art</h4>
+            <p>@Model.AboutTheArtText</p>
+        </div>
+    }
+    @if (Model.ArtPreviewImage != null)
+    {
+        <div class="one-half column">
+            <img src="@Model.ArtPreviewImage.Url" title="@Model.ArtPreviewCaption" style="max-width: 100%;" />
+
+            @if (Model.ArtPreviewCaption != null)
+            {
+                <br />
+                <p><small>@Model.ArtPreviewCaption</small></p>
+            }
+        </div>
+    }
+</section>
+
+
+@foreach (var mapEntry in mapEntries)
+{
+    <section class="row">
+        <div class="three column">
+            <h4>@mapEntry.Map.Description Location</h4>
+            <div id="map_@mapId" style="width: 100%; height: 40vh; border: 1px solid silver;"></div>
+
+            <script type="text/javascript">
+                var map = L.map('map_@mapId', { crs: L.CRS.Simple, minZoom: 0, maxZoom: 4, zoom: 2 });
+                var bounds = [[0,0], [@mapEntry.Map.Image.Height/10, @mapEntry.Map.Image.Width/10]];
+                var image = L.imageOverlay('@mapEntry.Map.Image.Url', bounds, {attribution: '© Eurofurence'}).addTo(map);
+
+                var point = [(@mapEntry.Map.Image.Height -  @mapEntry.Y)/10, @mapEntry.X/10];
+                L.circle(point, {
+                    color: 'red',
+                    fillColor: '#f03',
+                    fillOpacity: 0.5,
+                    radius: (@mapEntry.TapRadius/10)
+                }).addTo(map);
+                
+                map.setView(point);
+            </script>
+        </div>
+
+
+    </section>
+
+    mapId++;
+}

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Eurofurence.App.Tools.CliToolBox": {
+      "commandName": "Project",
+      "commandLineArgs": "storage listUnusedImages"
+    }
+  }
+}
