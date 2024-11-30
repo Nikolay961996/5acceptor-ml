@@ -9,7 +9,7 @@ import requests
 def main():
     # conn = http.client.HTTPConnection("http://84.201.152.196:8020")
 
-    in_file = "Готовые проекты/c#/Backend-main/Src/OverwatchArcade.API/Services/AuthService/AuthService.cs"
+    in_file = "Program.cs"
     with open(in_file, 'r') as code_snippet:
         code_snippet_content = code_snippet.read()
         payload = {
@@ -18,9 +18,11 @@ def main():
                 {
                 'role': 'system',
                 'content':
+                    'Отвечаешь на русском.'
                     'Тебе присылают файлы для код ревью.'
                     ' Ты проверяешь код на потенциальные ошибки.'
                     ' После этого выдаешь их перечень и по возможности предлагаешь их исправление.'
+                    'Не нужно предоставлять итоговый код .'
                 },
                 {
                     'role': 'user',
